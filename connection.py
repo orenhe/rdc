@@ -25,17 +25,18 @@ def rdp_connect(address, user="", domain="", resolution="", fullscreen=False):
     cmdline.extend(settings.XFREERDP_STATIC_PARAMS)
 
     if user:
-        cmdline.extend(["-u", user])
+        cmdline.extend(["/u:", user])
 
     if domain:
-        cmdline.extend(["-d", domain])
+        cmdline.extend(["/d:", domain])
 
     if resolution:
-        cmdline.extend(["-g", resolution])
+        cmdline.extend(["/size:" + resolution])
 
     if fullscreen:
-        cmdline.extend(["-f"])
+        cmdline.extend(["/f"])
 
+    address = "/v:" + address
     cmdline.append(address)
 
     logging.info("Running %s", cmdline)

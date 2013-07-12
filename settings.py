@@ -21,7 +21,8 @@ CONNECTION_TEST_TIMEOUT = 2 # Seconds of timeout when testing if target is acces
 
 # XFreeRDP
 XFREERDP_BIN = "xfreerdp"
-XFREERDP_STATIC_PARAMS = [ "-x", "l", "--sec", "rdp", "--gdi", "sw", "-a", "32", "--plugin", "rdpsnd" ,"--composition" ]
+#XFREERDP_STATIC_PARAMS = [ "-x", "l", "--sec", "rdp", "--gdi", "sw", "-a", "32", "--plugin", "rdpsnd" ,"--composition" ]
+XFREERDP_STATIC_PARAMS = [ "-x", "l", "/sec:rdp","/bpp:32","-toggle-fullscreen","/sound:sys:pulse" ]
 #example:  xfreerdp -a 32 -o --gdi sw --composition --sec rdp
 
 # GUI Configuration
