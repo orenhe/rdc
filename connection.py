@@ -40,7 +40,6 @@ def rdp_connect(address, user="", domain="", password="", dualmon=False):
         cmdline.extend(["/multimon"])
 
     cmdline.extend(["/v:%s" %(address)])
-    #cmdline.append(address)
 
     proc = subprocess.Popen(cmdline)
     print  cmdline
@@ -53,9 +52,4 @@ def rdp_connect(address, user="", domain="", password="", dualmon=False):
         logging.error("Process had died too quickly, rc=%d", rc)
         raise ConnectionFailedError()
     
-    #straceline = "strace -tt -f -p {0} &> {1}".format(proc.pid, "{0}/{1}".format(folder, datestring))
-    
-    #logging.debug(straceline)
-    #os.system(straceline)
-
     return proc.pid

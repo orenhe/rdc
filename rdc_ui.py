@@ -150,10 +150,8 @@ class RdcUI(object):
         buttons["save"] = gtk.Button(u"← _Save")
         buttons["edit"] = gtk.Button(u"→ _Edit")
         buttons["new"] = gtk.Button(stock=gtk.STOCK_NEW)
-        buttons["delete"] = gtk.Button(stock=gtk.STOCK_DELETE)
-        #Exit Button patch for sound        
+        buttons["delete"] = gtk.Button(stock=gtk.STOCK_DELETE)   
         buttons["exit"] = gtk.Button(u"Exit")
-
         return buttons
 
 
@@ -183,7 +181,7 @@ class RdcUI(object):
 
         # rightpane
         containers["rightpane"] = gtk.HBox(False, 10)
-        containers["main_box"].pack2(containers["rightpane"], resize=False, shrink=True)
+       containers["main_box"].pack2(containers["rightpane"], resize=False, shrink=True)
 
         # rightpane_align
         containers["rightpane_align"] = gtk.Alignment()
@@ -225,7 +223,6 @@ class RdcUI(object):
         buttonbox.add(self.buttons["save"])
         buttonbox.add(self.buttons["new"])
         buttonbox.add(self.buttons["delete"])
-#Exit button 
         buttonbox.add(self.buttons["exit"])
         return buttonbox
 
@@ -323,7 +320,6 @@ class RdcUI(object):
         for field in model.ENTRY_FIELDS:
             desc = model.FIELD_DESCRIPTION[field]
             cells.append(gtk.CellRendererText())
-#            cells[count].connect('edited', self.cell_edited, (liststore, count))
             treeview_columns.append(gtk.TreeViewColumn(desc, cells[count], text=count))
             treeview_columns[count].set_resizable(True)
             treeview_columns[count].set_sort_indicator(True)

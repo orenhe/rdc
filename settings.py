@@ -19,7 +19,6 @@ AVAILABLE_RESOLUTIONS = ["640x480", "800x600", "1024x768", "1280x600", "1280x720
 RDP_PORT = 3389
 CONNECTION_TEST_TIMEOUT = 2 # Seconds of timeout when testing if target is accessible. Can also be a fraction
 
-# XFreeRDP (Geva edit: XFREERDP_STATIC_PARAMS also contained "--sec" + "rdp", had to remove to support dualmon)
 # example:  xfreerdp -a 32 -o --gdi sw --composition --sec rdp
 # example dualmon:  xfreerdp /multimon /f /u:user /p:password /v:servername
 XFREERDP_BIN = "xfreerdp"
