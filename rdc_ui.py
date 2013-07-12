@@ -124,6 +124,8 @@ class RdcUI(object):
         buttons["edit"] = gtk.Button(u"→ _Edit")
         buttons["new"] = gtk.Button(stock=gtk.STOCK_NEW)
         buttons["delete"] = gtk.Button(stock=gtk.STOCK_DELETE)
+#Exit Button patch for sound        
+        buttons["exit"] = gtk.Button(u"Exit")
 
         return buttons
 
@@ -196,7 +198,8 @@ class RdcUI(object):
         buttonbox.add(self.buttons["save"])
         buttonbox.add(self.buttons["new"])
         buttonbox.add(self.buttons["delete"])
-
+#Exit button 
+        buttonbox.add(self.buttons["exit"])
         return buttonbox
 
 
@@ -260,13 +263,13 @@ class RdcUI(object):
 
         label1 = gtk.Label("Resolution")
         label1.set_alignment(0, 0.5)
-#        label2 = gtk.Label("Full-Screen:")
-#        label2.set_alignment(0, 0.5)
+        label2 = gtk.Label("Full-Screen:")
+        label2.set_alignment(0, 0.5)
 
         form.attach(label1, 0, 1, 1, 2)
         form.attach(self.resolution_combobox, 1, 2, 1, 2)
-#        form.attach(label2, 0, 1, 2, 3)
-#        form.attach(self.fullscreen_checkbox, 1, 2, 2, 3)
+        form.attach(label2, 0, 1, 2, 3)
+        form.attach(self.fullscreen_checkbox, 1, 2, 2, 3)
 
         return form
 
@@ -408,6 +411,10 @@ class RdcUI(object):
             messagebox.destroy()
             return
 
+    def on_exit_button_click(self, widget, data=None):
+        exit();
+
+
         # Populate form
         list_entry = ListEntry.init_by_iter(iter, liststore)
 
@@ -443,6 +450,9 @@ class RdcUI(object):
 
         # Edit button
         self.buttons["edit"].connect("clicked", self.on_edit_button_click)
+	   
+        # Exit button
+        self.buttons["exit"].connect("clicked", self.on_exit_button_click)
 
     def create_window(self):
         window = gtk.Window(gtk.WINDOW_TOPLEVEL)

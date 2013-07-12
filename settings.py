@@ -10,8 +10,10 @@ GENERAL_CONF_FILE = "~/.rdc_general"
 CONNECTIONS_CONF_FILE = "~/.rdc_connections"
 
 # Resolution
-HEIGHT_OFFSET = 50 # Pixel size wasted by window manager  (taskbar + window decoration) - used for the "best fit" resolution autodetection 
-AVAILABLE_RESOLUTIONS = ["640x480", "1024x768", "1280x1024"]
+HEIGHT_OFFSET = 0 # Pixel size wasted by FLUXBOX window manager  (taskbar + window decoration) - used for the "best fit" resolution autodetection (50pixels)
+	          # Changed to Zero because the fluxbox windows manager  is disabled now. - Freiberg
+		
+AVAILABLE_RESOLUTIONS = ["640x480", "800x600", "1024x768", "1280x600", "1280x720", "1280x960", "1280x1024"]
 
 # RDP
 RDP_PORT = 3389
@@ -19,7 +21,8 @@ CONNECTION_TEST_TIMEOUT = 2 # Seconds of timeout when testing if target is acces
 
 # XFreeRDP
 XFREERDP_BIN = "xfreerdp"
-XFREERDP_STATIC_PARAMS = [ "-a" , "32" , "-x", "l", "--no-nla", "--no-osb", "--no-tls" , "--gdi", "sw" , "--composition" ]
+XFREERDP_STATIC_PARAMS = [ "-x", "l", "--sec", "rdp", "--gdi", "sw", "-a", "32", "--plugin", "rdpsnd" ,"--composition" ]
+#example:  xfreerdp -a 32 -o --gdi sw --composition --sec rdp
 
 # GUI Configuration
 LIST_WIDTH = 400
