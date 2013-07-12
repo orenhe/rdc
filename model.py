@@ -5,9 +5,9 @@ import settings
 
 ALLOWED_GENERAL_CONF_KEYS = ["readonly"]
 
-ENTRY_FIELDS = ["name", "address", "user", "domain"]
+ENTRY_FIELDS = ["name", "address", "domain", "user"]
 
-REQUIRED_FIELDS = ["address"]
+REQUIRED_FIELDS = ["address" , "user"]
 
 FIELD_DESCRIPTION = {
                      "name": "Display Name",
@@ -62,7 +62,7 @@ class ListEntry(object):
 
     @classmethod
     def init_empty(cls):
-        return cls("", "", "", "")
+        return cls("", "", "", "", "")
 
     def to_liststore_row_format(self):
         return [self.name, self.address, self.user, self.domain]

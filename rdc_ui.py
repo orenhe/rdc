@@ -19,6 +19,7 @@ import gconf
 import optparse
 import logging
 import os
+from os import path
 
 import model
 from model import RdpSettingsReader, ListEntry, RdpSettingsWriter
@@ -71,48 +72,74 @@ def generate_autodetected_dimentions():
 
     return (width, height)
 
-def get_recommended_resolution():
-    """Returns a geometry string ("WIDTHxHEIGHT") that is most recommended"""
-    (width, height) = generate_autodetected_dimentions()
-    new_height = height - settings.HEIGHT_OFFSET
-
-    return "%sx%s" % (width, new_height)
-
-class RdcUI(object):
+class RdcUI(object):    
     """Class responsible for the UI display and behavior"""
     def on_connect_button_click(self, widget, data=None):
         fields = {}
         for field in model.ENTRY_FIELDS:
             fields[field] = self.textboxes[field].get_text()
 
+        if (not fields["address"] or not fields["user"]):
+            msg_dialog = gtk.MessageDialog(self.window, flags=0, type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
+                                           message_format = "Please insert host and username")
+            msg_dialog.show_all()
+            msg_dialog.run()
+            msg_dialog.destroy()
+            return
+
+        # Dualmon and TLS handling below
+        pwd = None
+	should_dualmon = path.exists(path.expanduser('~/.fakexinerama'))
+
+        msg_dialog = gtk.MessageDialog(self.window, flags=0, type=gtk.MESSAGE_QUESTION, buttons=gtk.BUTTONS_OK,
+                                       message_format = "Please insert your password:")
+        action_area = msg_dialog.get_content_area()
+        pwd_entry = gtk.Entry()
+        pwd_entry.set_visibility(False)
+        action_area.pack_start(pwd_entry)
+
+        # Get the password
+        pwd_entry.connect('activate', lambda _:msg_dialog.response(gtk.RESPONSE_OK))
+        msg_dialog.set_default_response(gtk.RESPONSE_OK)
+
+        msg_dialog.show_all()
+        msg_dialog.run()
+        pwd = pwd_entry.get_text()
+        msg_dialog.destroy()
+
+        if (not pwd):
+            msg_dialog = gtk.MessageDialog(self.window, flags=0, type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
+                                           message_format = "No password given")
+            msg_dialog.show_all()
+            msg_dialog.run()
+            msg_dialog.destroy()
+            return
+
         logging.info("Connecting to %s (%s)", fields["address"], fields)
+	proc = ""
         try:
-            connection.rdp_connect(
+            proc = connection.rdp_connect(
                 address=fields["address"],
                 user=fields["user"],
                 domain=fields["domain"],
-                resolution=self.resolution_combobox.get_active_text(),
-                fullscreen=self.fullscreen_checkbox.get_active(),
+                password=pwd,
+                dualmon=should_dualmon,
             )
         except connection.ConnectionFailedError:
             logging.error("Connection failed")
             messagebox = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, message_format="Failed connecting to '%s'" % (fields["address"]))
             resp = messagebox.run()
             messagebox.destroy()
+	logging.info("proc: %s", proc)
+	file = open("/opt/RDC/connections.log", "r+")
+	file.write(str(proc) + ":" + fields["address"] + "\n")
+	file.close()
+	
         return
 
     def destroy(self, widget, data=None):
         print "destroy signal occurred"
         gtk.main_quit()
-
-    def create_resolution_combobox(self):
-        resolution_combobox = gtk.combo_box_new_text()
-        resolution_combobox.append_text(get_recommended_resolution())
-        resolution_combobox.set_active(0)
-        for resolution in settings.AVAILABLE_RESOLUTIONS:
-            resolution_combobox.append_text(resolution)
-
-        return resolution_combobox
 
     def create_buttons(self):
         buttons = {}
@@ -124,7 +151,7 @@ class RdcUI(object):
         buttons["edit"] = gtk.Button(u"→ _Edit")
         buttons["new"] = gtk.Button(stock=gtk.STOCK_NEW)
         buttons["delete"] = gtk.Button(stock=gtk.STOCK_DELETE)
-#Exit Button patch for sound        
+        #Exit Button patch for sound        
         buttons["exit"] = gtk.Button(u"Exit")
 
         return buttons
@@ -234,19 +261,10 @@ class RdcUI(object):
         for field in model.ENTRY_FIELDS:
             self.textboxes[field] = gtk.Entry()
             self.textboxes[field].set_activates_default(True)
-
-        # Resolution inputs
-        self.resolution_combobox = self.create_resolution_combobox()
-                   
-        self.fullscreen_checkbox = gtk.CheckButton()
-
-        
+      
         self.form_table = self.create_form()
-        self.resolution_form = self.create_resolution_form()
         self.containers["rightmost_vbox"].pack_start(self.form_table, False, False, 0)
-        self.containers["rightmost_vbox"].pack_start(self.resolution_form, False, False, 0)
         self.containers["rightmost_vbox"].pack_start(self.containers["connect_button_align"])
-
 
         # Connect button
         self.containers["connect_button_align"].add(self.buttons["connect"])
@@ -257,22 +275,6 @@ class RdcUI(object):
 
         # Unselect the treeview
         self.treeview.get_selection().unselect_all()
-
-    def create_resolution_form(self):
-        form = gtk.Table(2, 2, False)
-
-        label1 = gtk.Label("Resolution")
-        label1.set_alignment(0, 0.5)
-        label2 = gtk.Label("Full-Screen:")
-        label2.set_alignment(0, 0.5)
-
-        form.attach(label1, 0, 1, 1, 2)
-        form.attach(self.resolution_combobox, 1, 2, 1, 2)
-        form.attach(label2, 0, 1, 2, 3)
-        form.attach(self.fullscreen_checkbox, 1, 2, 2, 3)
-
-        return form
-
 
     def create_form(self):
         frame = gtk.Frame(label="Connection parameters")
@@ -406,14 +408,14 @@ class RdcUI(object):
     def on_edit_button_click(self, widget, data=None):
         liststore, iter = self.treeview.get_selection().get_selected()
         if iter is None:
-            messagebox = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, message_format="Nothing is selected")
+            messagebox = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
+                                           message_format="Nothing is selected")
             resp = messagebox.run()
             messagebox.destroy()
             return
 
     def on_exit_button_click(self, widget, data=None):
         exit();
-
 
         # Populate form
         list_entry = ListEntry.init_by_iter(iter, liststore)

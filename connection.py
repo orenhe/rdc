@@ -3,6 +3,9 @@ import time
 import subprocess
 import logging
 import settings
+import getpass
+import os
+import datetime
 
 class ConnectionFailedError(Exception):
     pass
@@ -17,7 +20,7 @@ def is_address_accessible(address):
 
     return True
 
-def rdp_connect(address, user="", domain="", resolution="", fullscreen=False):
+def rdp_connect(address, user="", domain="", password="", dualmon=False):
     if not is_address_accessible(address):
         raise ConnectionFailedError()
 
@@ -25,22 +28,22 @@ def rdp_connect(address, user="", domain="", resolution="", fullscreen=False):
     cmdline.extend(settings.XFREERDP_STATIC_PARAMS)
 
     if user:
-        cmdline.extend(["/u:", user])
+        cmdline.extend(["/u:%s" %(user)])
+
+    if password:
+        cmdline.extend(["/p:%s" %(password)])
 
     if domain:
-        cmdline.extend(["/d:", domain])
+        cmdline.extend(["/d:%s" %(domain)])
 
-    if resolution:
-        cmdline.extend(["/size:" + resolution])
+    if dualmon:
+        cmdline.extend(["/multimon"])
 
-    if fullscreen:
-        cmdline.extend(["/f"])
+    cmdline.extend(["/v:%s" %(address)])
+    #cmdline.append(address)
 
-    address = "/v:" + address
-    cmdline.append(address)
-
-    logging.info("Running %s", cmdline)
-    proc = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = subprocess.Popen(cmdline)
+    print  cmdline
 
     # Check if process died too quickly
     time.sleep(1)
@@ -49,5 +52,10 @@ def rdp_connect(address, user="", domain="", resolution="", fullscreen=False):
     if rc is not None:
         logging.error("Process had died too quickly, rc=%d", rc)
         raise ConnectionFailedError()
+    
+    #straceline = "strace -tt -f -p {0} &> {1}".format(proc.pid, "{0}/{1}".format(folder, datestring))
+    
+    #logging.debug(straceline)
+    #os.system(straceline)
 
-    return
+    return proc.pid
