@@ -5,7 +5,7 @@ import settings
 
 ALLOWED_GENERAL_CONF_KEYS = ["readonly"]
 
-ENTRY_FIELDS = ["name", "address", "domain", "user"]
+ENTRY_FIELDS = ["name", "address", "user", "domain"]
 
 REQUIRED_FIELDS = ["address" , "user"]
 
@@ -65,7 +65,11 @@ class ListEntry(object):
         return cls("", "", "", "", "")
 
     def to_liststore_row_format(self):
-        return [self.name, self.address, self.user, self.domain]
+        ordered_values = []
+        for field in ENTRY_FIELDS:
+            ordered_values.append(getattr(self, field))
+
+        return ordered_values
 
 class RdpSettingsReader(object):
     def __init__(self, lines):
