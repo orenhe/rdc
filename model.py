@@ -62,7 +62,7 @@ class ListEntry(object):
 
     @classmethod
     def init_empty(cls):
-        return cls("", "", "", "", "")
+        return cls("", "", "", "")
 
     def to_liststore_row_format(self):
         return [self.name, self.address, self.user, self.domain]
