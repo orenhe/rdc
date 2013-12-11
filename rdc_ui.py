@@ -181,7 +181,7 @@ class RdcUI(object):
 
         # rightpane
         containers["rightpane"] = gtk.HBox(False, 10)
-       containers["main_box"].pack2(containers["rightpane"], resize=False, shrink=True)
+        containers["main_box"].pack2(containers["rightpane"], resize=False, shrink=True)
 
         # rightpane_align
         containers["rightpane_align"] = gtk.Alignment()
